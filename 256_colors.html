@@ -1,0 +1,130 @@
+<html>
+<head>
+	<title>256 Colors</title>
+</head>
+<style type="text/css">
+html, body {
+	margin: 0px;
+	padding:0px;
+}
+.box {
+	width: 6.05%;
+	height: 110px;
+	border: 1px solid black;
+	display:inline-block;
+}
+.master-box {
+	width: 99%;
+	height: 200px;
+	margin:auto;
+	border: 1px solid black;
+	display:inline-block;
+}
+.break {
+	word-wrap: break-word;
+}
+</style>
+<body>
+<div class="master-box" id="mbox"></div>
+<div class="colors-box" id="box"></div>
+</body>
+<script type="text/javascript">
+function HueToRgb(m1, m2, hue) {
+	var v;
+	if (hue < 0)
+		hue += 1;
+	else if (hue > 1)
+		hue -= 1;
+
+	if (6 * hue < 1)
+		v = m1 + (m2 - m1) * hue * 6;
+	else if (2 * hue < 1)
+		v = m2;
+	else if (3 * hue < 2)
+		v = m1 + (m2 - m1) * (2/3 - hue) * 6;
+	else
+		v = m1;
+
+	return 255 * v;
+}
+/**
+ * Converts an HSL color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes h, s, and l are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * @param   Number  h       The hue
+ * @param   Number  s       The saturation
+ * @param   Number  l       The lightness
+ * @return  JS Literal Object  The RGB representation
+ */
+function hsl2rgb(h, s, l) {
+	var m1, m2, hue;
+	var r, g, b
+	s /=100;
+	l /= 100;
+	if (s == 0)
+		r = g = b = (l * 255);
+	else {
+		if (l <= 0.5)
+			m2 = l * (s + 1);
+		else
+			m2 = l + s - l * s;
+		m1 = l * 2 - m2;
+		hue = h / 360;
+		r = Math.round(HueToRgb(m1, m2, hue + 1/3));
+		g = Math.round(HueToRgb(m1, m2, hue));
+		b = Math.round(HueToRgb(m1, m2, hue - 1/3));
+	}
+	return {r: r, g: g, b: b};
+}
+var counter = 0;
+var unique = [];
+var unique_r = [];
+var unique_g = [];
+var unique_b = [];
+for(var k = 0; k < 360; k+=23) {
+	for(var j = 15; j < 95; j+=5) {
+		document.getElementById("box").innerHTML = document.getElementById("box").innerHTML +
+		("<div class='box' id='box"+counter+"'></div>");
+		document.getElementById("box"+counter).style.backgroundColor="hsl("+k+", 95%, "+j+"%)";
+		var col = hsl2rgb(k,95,j);
+		var sum = col.r+col.g+col.b;
+		document.getElementById("box"+counter).innerHTML = 
+			counter.toString(2)+
+			"<br>R:"+col.r+
+			"<br>G:"+col.g+
+			"<br>B:"+col.b+
+			"<br>S:"+sum;
+		unique.push(sum);
+		unique_r.push(col.r);
+		unique_g.push(col.g);
+		unique_b.push(col.b);
+		counter++;
+	}
+}
+var my_name = "My name is Khalil";
+counter = 0;
+function runMe() {
+	setTimeout(function() {
+		var data = 
+			(my_name.charCodeAt(counter) << 16) | 
+			(my_name.charCodeAt(counter+1) << 8) | 
+			 my_name.charCodeAt(counter+2);
+		var red = my_name.charCodeAt(counter);
+		var green = my_name.charCodeAt(counter+1);
+		var blue = my_name.charCodeAt(counter+2);
+		counter+=3;
+		console.log(data.toString(2));
+		if(data == "0") {
+			document.getElementById("mbox").style.backgroundColor = "rgb(0,0,0)";
+			return;
+		}
+		document.getElementById("mbox").style.backgroundColor = "rgb("+red+","+green+","+blue+")";
+		document.getElementById("mbox").innerHTML = ""
+		runMe();
+	}, 23);
+}
+runMe();
+</script>
+</html>
